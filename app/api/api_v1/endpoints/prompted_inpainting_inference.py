@@ -1,8 +1,12 @@
 import os
 import base64
 import requests
-from fastapi import APIRouter, UploadFile, File, HTTPException
+import numpy as np
+from typing import Any
+from fastapi import APIRouter, UploadFile, File, HTTPException, Response
 from io import BytesIO
+from PIL import Image
+from algorithms.prompted_figure_inpainting.src import preprocessor, pose_mask_generation
 
 router = APIRouter()
 
@@ -27,3 +31,49 @@ async def root(
     except Exception as e:
         return f'Error connecting to model inference endpoint: {e}'
     return response.json()
+
+@router.post("/prompted_inpainting",
+    responses = {
+        200: {
+            "content": {"image/jpeg": {}}
+        }
+    },
+    response_class=Response
+)
+async def root(
+    prompt: str,
+    strength: float,
+    base_image_file: UploadFile = File(...),
+):
+    base_image_data = await base_image_file.read()
+    base_image_arr: np.ndarray = preprocessor.preprocessing(np.array(Image.open(BytesIO(base_image_data))))
+    mask_image_arr, blob_type = pose_mask_generation.translate_prompt_to_body_blob(base_image_arr, prompt)
+    base_image: Image = Image.fromarray(base_image_arr)
+    mask_image: Image = Image.fromarray(mask_image_arr)
+    # encode images as base 64
+    base_buffered = BytesIO()
+    mask_buffered = BytesIO()
+    base_image.save(base_buffered, format="JPEG")
+    mask_image.save(mask_buffered, format="JPEG")
+    base_image_str = base64.b64encode(base_buffered.getvalue())
+    mask_image_str = base64.b64encode(mask_buffered.getvalue())
+    payload = {
+        "prompt": prompt,
+        "strength": strength,
+        "base_image": base_image_str.decode(),
+        "mask_image": mask_image_str.decode(),
+    }
+    try:
+        response = requests.post(
+            "http://127.0.0.1:8005/prompted_inpainting",#os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+            json=payload
+        )
+    except Exception as e:
+        return f'Error connecting to model inference endpoint: {e}'
+    try:
+        res: Any = response.json()
+        content_str = res["image"]
+        base64_image = base64.b64decode(content_str)
+    except Exception as e:
+        raise HTTPException(404, f'error parsing model json response: {e}')
+    return Response(content=base64_image, media_type="image/jpeg")
