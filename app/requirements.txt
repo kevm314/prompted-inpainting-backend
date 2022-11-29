@@ -1,0 +1,6 @@
+fastapi[all]
+opencv-python
+requests
+mediapipe
+shapely
+Pillow

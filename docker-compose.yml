@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  backend:
+    image: inpainting-backend
+    # debug only
+    build:
+      network: host
+    ports:
+      - "8000:8000"

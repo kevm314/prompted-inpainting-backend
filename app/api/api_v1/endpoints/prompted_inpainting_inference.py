@@ -65,7 +65,7 @@ async def root(
     }
     try:
         response = requests.post(
-            "http://127.0.0.1:8005/prompted_inpainting",#os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+            "http://localhost:8005/prompted_inpainting",#os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
             json=payload
         )
     except Exception as e:
