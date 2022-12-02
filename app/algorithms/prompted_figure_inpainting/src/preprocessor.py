@@ -3,6 +3,7 @@ import numpy as np
 
 def process_input(image_path: str) -> np.ndarray:
     primary_image_arr = cv2.imread(image_path)
+    primary_image_arr = cv2.cvtColor(primary_image_arr, cv2.COLOR_BGR2RGB)
     return primary_image_arr
 
 def preprocessing(primary_image_arr: np.ndarray) -> np.ndarray:

@@ -1,13 +1,13 @@
 import os
 import base64
 import requests
+import json
 import numpy as np
 from typing import Any
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response
 from io import BytesIO
 from PIL import Image
 from algorithms.prompted_figure_inpainting.src import preprocessor, pose_mask_generation
-
 router = APIRouter()
 
 @router.post("/prompted_inpainting_uploads")
@@ -25,7 +25,7 @@ async def root(
     }
     try:
         response = requests.post(
-            "http://127.0.0.1:8005/prompted_inpainting",#os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+            os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
             json=payload
         )
     except Exception as e:
@@ -35,10 +35,20 @@ async def root(
 @router.post("/prompted_inpainting",
     responses = {
         200: {
-            "content": {"image/jpeg": {}}
-        }
-    },
-    response_class=Response
+            "content": 
+                {
+                    "image/jpeg": {
+                },
+
+            },
+            "content": 
+                {
+                    "application/json" : {
+                }
+            },
+            "description": "Return the JSON item or an image."
+        },
+    }
 )
 async def root(
     prompt: str,
@@ -47,7 +57,15 @@ async def root(
 ):
     base_image_data = await base_image_file.read()
     base_image_arr: np.ndarray = preprocessor.preprocessing(np.array(Image.open(BytesIO(base_image_data))))
-    mask_image_arr, blob_type = pose_mask_generation.translate_prompt_to_body_blob(base_image_arr, prompt)
+    try:
+        mask_image_arr, blob_type = pose_mask_generation.translate_prompt_to_body_blob(base_image_arr, prompt)
+    except Exception as e:
+        raise HTTPException(404, f'error interpreting prompt: {e}')
+    if blob_type is None:
+        res = json.dumps({
+            "msg" : "Prompt could not be interpreted"
+        })
+        return Response(content=res, status_code=200, media_type="application/json")
     base_image: Image = Image.fromarray(base_image_arr)
     mask_image: Image = Image.fromarray(mask_image_arr)
     # encode images as base 64
@@ -65,7 +83,7 @@ async def root(
     }
     try:
         response = requests.post(
-            "http://localhost:8005/prompted_inpainting",#os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+            os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
             json=payload
         )
     except Exception as e:

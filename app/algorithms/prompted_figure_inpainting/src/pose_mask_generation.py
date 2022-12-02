@@ -101,7 +101,6 @@ def generate_outline(pose_landmarks, keyword_blob) -> np.ndarray:
 
 def generate_landmarks(input_frame: np.ndarray):
     """ Generate landmarks for the provided input frame. """
-    input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
     # Initialize fresh pose tracker and run it.
     with mp_pose.Pose() as pose_tracker:
         result = pose_tracker.process(image=input_frame)
@@ -113,12 +112,7 @@ def generate_landmarks(input_frame: np.ndarray):
     # correct aspect ratio.
     frame_height, frame_width = input_frame.shape[:2]
     pose_landmarks *= np.array([frame_width, frame_height, frame_width])
-
-    # Draw pose landmarks on the image.
-    mp_drawing.draw_landmarks(
-        input_frame,
-        result.pose_landmarks,
-        mp_pose.POSE_CONNECTIONS)
+    
     return pose_landmarks, result
 
 def generate_mask(src_img, blob_type) -> np.ndarray:
@@ -138,5 +132,8 @@ def translate_prompt_to_body_blob(input_frame: np.ndarray, prompt: str) -> Tuple
         if word in object_blob_mapping.keys():
             blob_type = object_blob_mapping[word]
             break
+    if blob_type is None:
+        return None, blob_type
+    
     mask = generate_mask(input_frame, blob_type)
     return mask, blob_type
