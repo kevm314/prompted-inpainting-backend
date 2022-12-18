@@ -1,3 +1,4 @@
+import io
 import os
 import base64
 import requests
@@ -5,6 +6,7 @@ import json
 import numpy as np
 from typing import Any
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response
+from fastapi.responses import StreamingResponse
 from io import BytesIO
 from PIL import Image
 from algorithms.prompted_figure_inpainting.src import preprocessor, pose_mask_generation
@@ -32,23 +34,23 @@ async def root(
         return f'Error connecting to model inference endpoint: {e}'
     return response.json()
 
-@router.post("/prompted_inpainting",
-    responses = {
-        200: {
-            "content": 
-                {
-                    "image/jpeg": {
-                },
+@router.post("/prompted_inpainting"
+    # responses = {
+    #     200: {
+    #         "content": 
+    #             {
+    #                 "image/jpeg": {
+    #             },
 
-            },
-            "content": 
-                {
-                    "application/json" : {
-                }
-            },
-            "description": "Return the JSON item or an image."
-        },
-    }
+    #         },
+    #         "content": 
+    #             {
+    #                 "application/json" : {
+    #             }
+    #         },
+    #         "description": "Return the JSON item or an image."
+    #     },
+    # }
 )
 async def root(
     prompt: str,

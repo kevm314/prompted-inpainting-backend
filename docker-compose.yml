@@ -4,9 +4,24 @@ services:
   backend:
     image: inpainting-backend
     # debug only
-    build:
-      network: host
+    # build:
+    #   network: host
+    #network_mode: host
     ports:
-      - "8000:8000"
+      - 8000:8000
     env_file:
       - .env
+
+  frontend:
+    image: inpainting-frontend
+    # debug only
+    # build:
+    #   network: host
+    #network_mode: host
+    ports:
+      - 3000:3000
+
+# networks:
+#   default:
+#     external: true
+#     name: host

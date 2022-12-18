@@ -21,6 +21,11 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+@app.get("/")
+async def root():
+    return {"message": "active"}
+
+
 if __name__ == "__main__":
     from dotenv import load_dotenv
     import pathlib

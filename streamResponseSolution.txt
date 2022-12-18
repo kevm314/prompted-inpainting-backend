@@ -1,0 +1,11 @@
+    try:
+        res: Any = response.json()
+        content_str = res["image"]
+        memory_stream = io.BytesIO()
+        final_image = Image.open(BytesIO(base64.b64decode(content_str)))
+        final_image.save(memory_stream, format="PNG")
+        memory_stream.seek(0)
+
+    except Exception as e:
+        raise HTTPException(404, f'error parsing model json response: {e}')
+    return StreamingResponse(memory_stream, media_type="image/png")#Response(content=base64_image, media_type="image/jpeg")
