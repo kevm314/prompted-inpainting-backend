@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from mangum import Mangum
 
 from api.api_v1.api import api_router
 from core.config import settings
@@ -25,6 +26,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 async def root():
     return {"message": "active"}
 
+handler = Mangum(app)
 
 if __name__ == "__main__":
     from dotenv import load_dotenv

@@ -83,9 +83,14 @@ async def root(
         "base_image": base_image_str.decode(),
         "mask_image": mask_image_str.decode(),
     }
+    headers = {
+        "Authorization": "Bearer ?",
+        "Content-Type": "application/json"
+    }
     try:
         response = requests.post(
             os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+            #headers=headers,
             json=payload
         )
     except Exception as e:
