@@ -6,3 +6,4 @@ shapely
 Pillow
 mangum
 python-dotenv
+awslambdaric

@@ -9,10 +9,13 @@ Description: >
 Globals:
   Function:
     Timeout: 30
-    MemorySize: 128
+    MemorySize: 2048
     Tracing: Active
   Api:
     TracingEnabled: True
+    BinaryMediaTypes:
+      - "*~1*"
+
 
 Resources:
   HelloWorldFunction:
@@ -21,7 +24,6 @@ Resources:
       PackageType: Image
       Architectures:
         - x86_64
-      Handler: main.handler
       Events:
         # HelloWorld:
         #   Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -39,7 +41,7 @@ Resources:
             Path: /{proxy+}
             Method: ANY
     Metadata:
-      Dockerfile: lambda.dockerfile
+      Dockerfile: backend.dockerfile
       DockerContext: ./app
       DockerTag: python3.9-v1
 

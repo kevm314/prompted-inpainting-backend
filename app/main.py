@@ -6,8 +6,10 @@ from mangum import Mangum
 from api.api_v1.api import api_router
 from core.config import settings
 
+# TODO: may need to remove `root_path` when running locally
 app = FastAPI(
-    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    root_path="/Prod"
 )
 
 # Set all CORS enabled origins
