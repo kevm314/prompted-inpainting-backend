@@ -18,6 +18,18 @@ Globals:
 
 
 Resources:
+  HelloWorldApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Inpainting Backend Endpoint
+      StageName: Prod
+      Cors:
+        AllowMethods: "'POST, GET, PUT, DELETE, OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -25,19 +37,16 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        # HelloWorld:
-        #   Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        #   Properties:
-        #     Path: /
-        #     Method: ANY
         Root:
           Type: Api
           Properties:
+            RestApiId: !Ref HelloWorldApi
             Path: /
             Method: ANY
         NonRoot:
           Type: Api
           Properties:
+            RestApiId: !Ref HelloWorldApi
             Path: /{proxy+}
             Method: ANY
     Metadata:
@@ -45,16 +54,3 @@ Resources:
       DockerContext: ./app
       DockerTag: python3.9-v1
 
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
