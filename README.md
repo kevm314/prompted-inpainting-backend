@@ -24,6 +24,11 @@ constrained to running the aws lambda handler comand instead of the default uvic
 - run `sam local start-api --debug --host 127.0.0.8 --port 8000 --env-vars app/prod_env.json` to run the AWS lambda function locally before pushing to production
 - run `sam deploy --guided` to perform a guided deployment of the build (with the build command being performed first - exclude `--guided` to perform without prompts)
 
+## ML endpoint deployment
+
+- the Stable diffusion 2 model is used out of the box via the hugginface inference endpoints service (using the below repo):
+  - https://huggingface.co/philschmid/stable-diffusion-2-inpainting-endpoint
+
 ## Project - lessons learnt
 
 - AWS SAM can build a serverless lambda function using a zip file or docker image -> a custom docker image allows more flexibility in installing 3rd party libraries in a known environment (e.g. benefit of using docker)

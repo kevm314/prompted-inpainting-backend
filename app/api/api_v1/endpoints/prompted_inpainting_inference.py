@@ -78,30 +78,34 @@ async def root(
     base_image_str = base64.b64encode(base_buffered.getvalue())
     mask_image_str = base64.b64encode(mask_buffered.getvalue())
     payload = {
-        "prompt": prompt,
+        "inputs": prompt,
         "strength": strength,
-        "base_image": base_image_str.decode(),
+        "image": base_image_str.decode(),
         "mask_image": mask_image_str.decode(),
     }
-    headers = {
-        "Authorization": "Bearer ?",
-        "Content-Type": "application/json"
-    }
     try:
-        response = requests.post(
-            os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
-            #headers=headers,
-            json=payload
-        )
+        authorization = 'Bearer ' + os.getenv("HF_TOKEN")
+        # headers
+        headers = {
+                "Authorization": authorization,
+                "Content-Type": "application/json",
+                "Accept": "image/png" # important to get an image back
+        }
+        response = requests.post(os.getenv("HF_ENDPOINT_URL"), headers=headers, json=payload)
+        
+        if response.status_code != 200:
+            raise HTTPException(404, f'error parsing model json response: {response.content}')
+        output_image: Image = Image.open(BytesIO(response.content))
     except Exception as e:
         return f'Error connecting to model inference endpoint: {e}'
+    
     try:
-        res: Any = response.json()
-        content_str = res["image"]
+        # res: Any = response.json()
+        # content_str = res["image"]
 
         # post process to restore down sampled non-mask pixels
         buffered: BytesIO = preprocessor.postprocess(
-            content_str=content_str,
+            output_image=output_image,
             base_image_arr=base_image_arr,
             mask_image_arr=mask_image_arr
             )

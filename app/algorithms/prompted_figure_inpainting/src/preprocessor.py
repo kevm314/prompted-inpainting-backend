@@ -32,8 +32,7 @@ def resize_with_border(primary_image_arr: np.ndarray, desired_size=512) -> np.nd
     primary_image_arr = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
     return primary_image_arr
 
-def postprocess(content_str: str, base_image_arr: np.ndarray, mask_image_arr: np.ndarray) -> BytesIO:
-    output_image = Image.open(BytesIO(base64.b64decode(content_str)))
+def postprocess(output_image: Image, base_image_arr: np.ndarray, mask_image_arr: np.ndarray) -> BytesIO:
     processed_output_img = restore_mask(output_image, base_image_arr, mask_image_arr)
     # encode image as base 64
     buffered = BytesIO()

@@ -54,6 +54,8 @@ Resources:
           API_ROOT_URL: ""
           PROMPTED_INPAINTING_INFERENCE_URL: ""
           CORS_DOMAINS: ""
+          HF_ENDPOINT_URL: ""
+          HF_TOKEN: ""
 
     Metadata:
       Dockerfile: backend.dockerfile
