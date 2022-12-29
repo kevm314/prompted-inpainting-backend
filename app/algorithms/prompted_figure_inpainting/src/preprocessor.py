@@ -1,5 +1,9 @@
 import cv2
+import base64
 import numpy as np
+
+from io import BytesIO
+from PIL import Image
 
 def process_input(image_path: str) -> np.ndarray:
     primary_image_arr = cv2.imread(image_path)
@@ -27,3 +31,20 @@ def resize_with_border(primary_image_arr: np.ndarray, desired_size=512) -> np.nd
     color = [0, 0, 0]
     primary_image_arr = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
     return primary_image_arr
+
+def postprocess(content_str: str, base_image_arr: np.ndarray, mask_image_arr: np.ndarray) -> BytesIO:
+    output_image = Image.open(BytesIO(base64.b64decode(content_str)))
+    processed_output_img = restore_mask(output_image, base_image_arr, mask_image_arr)
+    # encode image as base 64
+    buffered = BytesIO()
+    processed_output_img.save(buffered, format="JPEG")
+    return buffered
+
+def restore_mask(
+        output_image: Image,
+        base_image_arr: np.ndarray,
+        mask_image_arr: np.ndarray
+    ) -> Image:
+    processed_output_img = np.asarray(output_image) * (mask_image_arr / 255) + base_image_arr * (1 - mask_image_arr / 255)
+    processed_output_img = Image.fromarray(processed_output_img.astype(np.uint8))
+    return processed_output_img

@@ -98,7 +98,13 @@ async def root(
     try:
         res: Any = response.json()
         content_str = res["image"]
-        base64_image = base64.b64decode(content_str)
+
+        # post process to restore down sampled non-mask pixels
+        buffered: BytesIO = preprocessor.postprocess(
+            content_str=content_str,
+            base_image_arr=base_image_arr,
+            mask_image_arr=mask_image_arr
+            )
     except Exception as e:
         raise HTTPException(404, f'error parsing model json response: {e}')
-    return Response(content=base64_image, media_type="image/jpeg")
+    return Response(content=buffered.getvalue(), media_type="image/jpeg")

@@ -26,6 +26,6 @@ class Model:
         torch.cuda.empty_cache()
         #image and mask_image should be PIL images.
         #The mask structure is white for inpainting and black for keeping as is
-        output_image = self.inpainting_pipe(prompt=prompt, image=base_image, mask_image=mask_image, num_inference_steps=100, strength=1).images[0]
+        output_image = self.inpainting_pipe(prompt=prompt, image=base_image, mask_image=mask_image, num_inference_steps=100).images[0]
         processed_output_img = np.asarray(output_image) * (np.asarray(mask_image) / 255) + np.asarray(base_image) * (1 - np.asarray(mask_image) / 255)
         return Image.fromarray(processed_output_img.astype(np.uint8))
