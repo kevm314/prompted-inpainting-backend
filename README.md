@@ -1,24 +1,27 @@
 # prompted-inpainting-backend
 
-## Build
+## Rapid prototyping (dev)
+
+- while in the `app/` directory run the fastAPI server using the `python main.py` command ensuring to have an appropriate environment with the requirements packages installed. This command will 
+automatically use the `dev.env` file. 
+
+## Running using docker (dev - dockerfile currently overfitted to aws lambda build)
 
 - run `docker build -f backend.dockerfile -t inpainting-backend .` while in the `app/` directory to build the project backend docker image
-
-## Run
-
 - run `docker compose up` to start up the backend service for debugging
 - to attach to the running container for debugging purposes
     - run `docker compose up -d` to start the container in detached mode
     - run `docker exec -it prompted-inpainting-backend-backend-1 bash` to start a bash session
 
-## Production deployment
+## Production deployment (prod)
 
 Note that the AWS lambda production deployment involves a custom docker image (based off of a AWS lambda python image). This makes it
 more convenient to install custom libraries/packages but has the downside of needing aws ECR for image storage. The built image is also
-constrained to running the aws lambda handler comand instead of the default uvicorn server command.
+constrained to running the aws lambda handler comand instead of the default uvicorn server command. From the root of the project:
 
+- run `sam validate` to validate the AWS SAM template file
 - run `sam build` to build the AWS lambda image based function
-- run `sam local start-api --debug` to run the AWS lambda function locally before pushing to production
+- run `sam local start-api --debug --host 127.0.0.8 --port 8000 --env-vars app/prod_env.json` to run the AWS lambda function locally before pushing to production
 - run `sam deploy --guided` to perform a guided deployment of the build (with the build command being performed first - exclude `--guided` to perform without prompts)
 
 ## Project - lessons learnt

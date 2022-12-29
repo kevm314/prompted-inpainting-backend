@@ -1,3 +1,5 @@
 **/__pycache__
 .aws-sam
 samconfig.toml
+app/dev.env
+app/prod_env.json

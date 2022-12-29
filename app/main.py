@@ -1,15 +1,24 @@
+import os
+
+if __name__ == "__main__":
+    # for dev purposes only
+    from dotenv import load_dotenv
+    import pathlib
+    load_dotenv(dotenv_path=pathlib.Path('./dev.env'))
+
 import uvicorn
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 from mangum import Mangum
+from starlette.middleware.cors import CORSMiddleware
 
 from api.api_v1.api import api_router
 from core.config import settings
 
-# TODO: may need to remove `root_path` when running locally
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    root_path="/Prod"
+    root_path=os.environ["API_ROOT_URL"]
 )
 
 # Set all CORS enabled origins
@@ -31,7 +40,5 @@ async def root():
 handler = Mangum(app)
 
 if __name__ == "__main__":
-    from dotenv import load_dotenv
-    import pathlib
-    load_dotenv(dotenv_path=pathlib.Path('../.env'))
+    # for dev purposes only
     uvicorn.run(app, host="0.0.0.0", port=8000)
