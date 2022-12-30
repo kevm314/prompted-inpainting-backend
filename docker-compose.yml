@@ -29,13 +29,15 @@ services:
     # build:
     #   network: host
     #network_mode: host
+    volumes:
+      - ./app:/app
     ports:
       - 8000:8000
     env_file:
       - app/dev.env
     build:
       context: ./app
-      dockerfile: backend.dockerfile
+      dockerfile: backend_dev.dockerfile
 
   frontend:
     image: inpainting-frontend

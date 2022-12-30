@@ -5,9 +5,37 @@
 - while in the `app/` directory run the fastAPI server using the `python main.py` command ensuring to have an appropriate environment with the requirements packages installed. This command will 
 automatically use the `dev.env` file. 
 
-## Running using docker (dev - dockerfile currently overfitted to aws lambda build)
+## Database migrations
 
-- run `docker build -f backend.dockerfile -t inpainting-backend .` while in the `app/` directory to build the project backend docker image
+- initialising a database migration with alembic (from within the `app/` directory)
+  - `alembic init alembic`
+- ensure to run the remaining alembic commands inside the dev backend container while the service stack is running (this is to enable connection to the dev db)
+
+```console
+$ docker compose exec backend bash
+```
+
+- After changing a model (for example, adding a column), create a revision, e.g.:
+
+```console
+$ alembic revision --autogenerate -m "Add column last_name to User model"
+```
+- When running the above revision command, apply a path to the env file to be used (dev or production db for examples):
+```console
+$ ENV_PATH=./dev.env alembic revision --autogenerate -m "Initial set up"
+```
+
+- Commit to the git repository the files generated in the alembic directory.
+
+- After creating the revision, run the migration in the database (this is what will actually change the database):
+
+```console
+$ ENV_PATH=./dev.env alembic upgrade head
+```
+
+## Running using docker (dev)
+
+- run `docker build -f backend_dev.dockerfile -t inpainting-backend .` while in the `app/` directory to build the project backend docker image
 - run `docker compose up` to start up the backend service for debugging
 - to attach to the running container for debugging purposes
     - run `docker compose up -d` to start the container in detached mode
