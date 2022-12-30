@@ -1,6 +1,28 @@
 version: "3.7"
 
 services:
+  db:
+    image: postgres:12
+    networks:
+      - default
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - app/dev.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+  pgadmin:
+    image: dpage/pgadmin4
+    networks:
+      - default
+    depends_on:
+      - db
+    env_file:
+      - app/dev.env
+    ports:
+      - 5050:5050
+
   backend:
     image: inpainting-backend
     # debug only
@@ -11,8 +33,9 @@ services:
       - 8000:8000
     env_file:
       - app/dev.env
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
-    
+    build:
+      context: ./app
+      dockerfile: backend.dockerfile
 
   frontend:
     image: inpainting-frontend
@@ -22,6 +45,9 @@ services:
     #network_mode: host
     ports:
       - 3000:3000
+
+volumes:
+  app-db-data:
 
 # networks:
 #   default:

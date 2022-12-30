@@ -13,6 +13,14 @@ automatically use the `dev.env` file.
     - run `docker compose up -d` to start the container in detached mode
     - run `docker exec -it prompted-inpainting-backend-backend-1 bash` to start a bash session
 
+- service urls:
+
+Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
+
+Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
+
+PGAdmin, PostgreSQL web administration: http://localhost:5050
+
 ## Production deployment (prod)
 
 Note that the AWS lambda production deployment involves a custom docker image (based off of a AWS lambda python image). This makes it
