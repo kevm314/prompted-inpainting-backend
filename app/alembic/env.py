@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -11,13 +12,32 @@ from alembic import context
 # load required env file
 from dotenv import load_dotenv
 import pathlib
+
+user = ""
+password = ""
+server = ""
+db = ""
+
 env_path_not_provided = "NOT_PROVIDED"
 ENV_PATH = os.getenv("ENV_PATH", env_path_not_provided)
 if ENV_PATH == env_path_not_provided:
     print("-- No env path provided exiting...")
     sys.exit()
-print("-- Alembic loading db credentials from:", ENV_PATH)
-load_dotenv(dotenv_path=pathlib.Path(ENV_PATH))
+if ENV_PATH == "./prod_env.json":
+    with open(ENV_PATH, "r") as f:
+        env_data = json.load(f)
+        user = env_data["Parameters"]["POSTGRES_USER"]
+        password = env_data["Parameters"]["POSTGRES_PASSWORD"]
+        server = env_data["Parameters"]["POSTGRES_SERVER"]
+        db = env_data["Parameters"]["POSTGRES_DB"]
+else:
+    print("-- Alembic loading db credentials from:", ENV_PATH)
+    load_dotenv(dotenv_path=pathlib.Path(ENV_PATH))
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "")
+    server = os.getenv("POSTGRES_SERVER", "db")
+    db = os.getenv("POSTGRES_DB", "app")
+
 
 
 # this is the Alembic Config object, which provides
@@ -44,10 +64,6 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    user = os.getenv("POSTGRES_USER", "postgres")
-    password = os.getenv("POSTGRES_PASSWORD", "")
-    server = os.getenv("POSTGRES_SERVER", "db")
-    db = os.getenv("POSTGRES_DB", "app")
     return f"postgresql://{user}:{password}@{server}/{db}"
 
 def run_migrations_offline():

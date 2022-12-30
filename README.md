@@ -5,6 +5,15 @@
 - while in the `app/` directory run the fastAPI server using the `python main.py` command ensuring to have an appropriate environment with the requirements packages installed. This command will 
 automatically use the `dev.env` file. 
 
+## Production database (via AWS RDS)
+
+- To set up a production database use AWS RDS to create a postgres database.
+  - Ensure to set public accessibility to True in AWS so that alembic migrations can be run from local PC
+  - Ensure to have the database VPC security group enabling access from the local PC running the migrations (should turn off once migrations are complete)
+  - Ensure to have any aws services (e.g. aws lambda functions) able to access the database in its VPC group
+- When running alembic migrations, it seems easier to have separate env files for dev/prod to switch between the two databases to migrate changes into production
+  - It may be possible that a new commit is needed to apply changes to the production database
+
 ## Database migrations
 
 - initialising a database migration with alembic (from within the `app/` directory)
@@ -18,12 +27,17 @@ $ docker compose exec backend bash
 - After changing a model (for example, adding a column), create a revision, e.g.:
 
 ```console
-$ alembic revision --autogenerate -m "Add column last_name to User model"
+$ ENV_PATH=./dev.env alembic revision --autogenerate -m "Add column last_name to User model"
 ```
 - When running the above revision command, apply a path to the env file to be used (dev or production db for examples):
 ```console
 $ ENV_PATH=./dev.env alembic revision --autogenerate -m "Initial set up"
 ```
+For production change `ENV_PATH` as below:
+```console
+$ ENV_PATH=./prod_env.json alembic revision --autogenerate -m "Initial set up"
+```
+
 
 - Commit to the git repository the files generated in the alembic directory.
 

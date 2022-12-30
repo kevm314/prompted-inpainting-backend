@@ -56,6 +56,14 @@ Resources:
           CORS_DOMAINS: ""
           HF_ENDPOINT_URL: ""
           HF_TOKEN: ""
+          USERS_OPEN_REGISTRATION: ""
+          POSTGRES_SERVER: ""
+          POSTGRES_USER: ""
+          POSTGRES_PASSWORD: ""
+          POSTGRES_DB: ""
+          PGADMIN_LISTEN_PORT: ""
+          PGADMIN_DEFAULT_EMAIL: ""
+          PGADMIN_DEFAULT_PASSWORD: ""
 
     Metadata:
       Dockerfile: backend.dockerfile
