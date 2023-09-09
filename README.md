@@ -1,5 +1,17 @@
 # prompted-inpainting-backend
 
+## Setup
+
+- ensure to set up the environment variables files for both dev and prod usage by running the below
+
+```console
+cd app
+./generate_env_files.sh
+```
+
+- fill in the files with the appropriate values
+- Note that the prod env file has been made to be in json format, this is obviously non-ideal but it is the format required for the prod AWS lambda function to be tested on a local machine before deployment to AWS - [more info here on this limitation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-using-invoke.html#serverless-sam-cli-using-invoke-environment-file)
+
 ## Rapid prototyping (dev)
 
 - while in the `app/` directory run the fastAPI server using the `python main.py` command ensuring to have an appropriate environment with the requirements packages installed. This command will 

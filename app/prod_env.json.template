@@ -1,0 +1,17 @@
+{
+    "Parameters": {
+        "API_ROOT_URL" : "",
+        "PROMPTED_INPAINTING_INFERENCE_URL" : "",
+        "CORS_DOMAINS": "['http://localhost:3000']",
+        "HF_ENDPOINT_URL" : "",
+        "HF_TOKEN" : "",
+        "USERS_OPEN_REGISTRATION" : true,
+        "POSTGRES_SERVER" : "",
+        "POSTGRES_USER" : "",
+        "POSTGRES_PASSWORD" : "",
+        "POSTGRES_DB" : "",
+        "PGADMIN_LISTEN_PORT" : 0,
+        "PGADMIN_DEFAULT_EMAIL" : "",
+        "PGADMIN_DEFAULT_PASSWORD" : ""
+    }
+}
