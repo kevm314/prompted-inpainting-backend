@@ -1,10 +1,10 @@
 # prompted-inpainting-backend
 
-This is a very quickly set up project which implements text based image editing for altering clothing items by simply describing what changes a user would like e.g. "Give me a red t-shirt with a cool space theme image on it". There is no need to manually annotate or draw bounding boxes to allow the image editing to work.
+This is a hobby project which explores text based image editing for altering clothing items by simply describing what changes a user would like e.g. "Give me a red t-shirt with a cool space theme image on it". There is no need to manually annotate or draw bounding boxes to allow the image editing to work.
 
 To use the backend server a stable diffusion 2 inference endpoint must be set up via huggingface. See `Ml endpoint deployment`
 
-Example inputs/outputs are shown below:
+Example inputs/outputs are shown below demonstrating the capability of the tool:
 
 ![T-shirt demo](images/red_tshirt_demo.png)
 
