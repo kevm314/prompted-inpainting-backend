@@ -105,7 +105,8 @@ def generate_landmarks(input_frame: np.ndarray):
     with mp_pose.Pose() as pose_tracker:
         result = pose_tracker.process(image=input_frame)
         pose_landmarks = result.pose_landmarks
-
+    if pose_landmarks is None:
+        raise Exception("Please ensure the input image contains clothing items that can be edited")
     pose_landmarks = [[lmk.x, lmk.y, lmk.z] for lmk in pose_landmarks.landmark]
 
     # Map pose landmarks from [0, 1] range to absolute coordinates to get

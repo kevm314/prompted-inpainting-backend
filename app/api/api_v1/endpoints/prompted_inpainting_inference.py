@@ -12,27 +12,28 @@ from PIL import Image
 from algorithms.prompted_figure_inpainting.src import preprocessor, pose_mask_generation
 router = APIRouter()
 
-@router.post("/prompted_inpainting_uploads")
-async def root(
-    prompt: str,
-    base_image_file: UploadFile = File(...),
-    mask_image_file: UploadFile = File(...),
-):
-    base_image_data = await base_image_file.read()
-    mask_image_data = await mask_image_file.read()
-    payload = {
-        "prompt": prompt,
-        "base_image": base64.b64encode(base_image_data).decode("utf-8"),
-        "mask_image": base64.b64encode(mask_image_data).decode("utf-8"),
-    }
-    try:
-        response = requests.post(
-            os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
-            json=payload
-        )
-    except Exception as e:
-        return f'Error connecting to model inference endpoint: {e}'
-    return response.json()
+# TODO: debug endpoint to retrieve the mask generated from the user prompt
+# @router.post("/prompted_inpainting_uploads")
+# async def root(
+#     prompt: str,
+#     base_image_file: UploadFile = File(...),
+#     mask_image_file: UploadFile = File(...),
+# ):
+#     base_image_data = await base_image_file.read()
+#     mask_image_data = await mask_image_file.read()
+#     payload = {
+#         "prompt": prompt,
+#         "base_image": base64.b64encode(base_image_data).decode("utf-8"),
+#         "mask_image": base64.b64encode(mask_image_data).decode("utf-8"),
+#     }
+#     try:
+#         response = requests.post(
+#             os.environ["PROMPTED_INPAINTING_INFERENCE_URL"],
+#             json=payload
+#         )
+#     except Exception as e:
+#         return f'Error connecting to model inference endpoint: {e}'
+#     return response.json()
 
 @router.post("/prompted_inpainting"
     # responses = {
@@ -58,14 +59,19 @@ async def root(
     base_image_file: UploadFile = File(...),
 ):
     base_image_data = await base_image_file.read()
-    base_image_arr: np.ndarray = preprocessor.preprocessing(np.array(Image.open(BytesIO(base_image_data))))
+    try:
+        base_image_arr: np.ndarray = preprocessor.preprocessing(np.array(Image.open(BytesIO(base_image_data))))
+    except Exception as e:
+        raise HTTPException(400, f'Unable to process input image file: {e}')
+    if base_image_arr.shape[-1] == 4:
+        base_image_arr = base_image_arr[:,:,:3]
     try:
         mask_image_arr, blob_type = pose_mask_generation.translate_prompt_to_body_blob(base_image_arr, prompt)
     except Exception as e:
-        raise HTTPException(404, f'error interpreting prompt: {e}')
+        raise HTTPException(400, f'error interpreting prompt: {e}')
     if blob_type is None:
         res = json.dumps({
-            "msg" : "Prompt could not be interpreted"
+            "msg" : "Prompt could not be interpreted, please ensure to describe the clothing item you would like edited on the input image"
         })
         return Response(content=res, status_code=200, media_type="application/json")
     base_image: Image = Image.fromarray(base_image_arr)
@@ -94,7 +100,7 @@ async def root(
         response = requests.post(os.getenv("HF_ENDPOINT_URL"), headers=headers, json=payload)
         
         if response.status_code != 200:
-            raise HTTPException(404, f'error parsing model json response: {response.content}')
+            raise HTTPException(400, f'error parsing model json response: {response.content}')
         output_image: Image = Image.open(BytesIO(response.content))
     except Exception as e:
         return f'Error connecting to model inference endpoint: {e}'
@@ -110,5 +116,5 @@ async def root(
             mask_image_arr=mask_image_arr
             )
     except Exception as e:
-        raise HTTPException(404, f'error parsing model json response: {e}')
+        raise HTTPException(400, f'error parsing model json response: {e}')
     return Response(content=buffered.getvalue(), media_type="image/jpeg")

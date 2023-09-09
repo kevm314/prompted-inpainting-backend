@@ -29,6 +29,9 @@ services:
     # build:
     #   network: host
     #network_mode: host
+    command: bash -c "cd /app &&
+      ENV_PATH=./dev.env alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       - ./app:/app
     ports:
@@ -38,15 +41,6 @@ services:
     build:
       context: ./app
       dockerfile: backend_dev.dockerfile
-
-  frontend:
-    image: inpainting-frontend
-    # debug only
-    # build:
-    #   network: host
-    #network_mode: host
-    ports:
-      - 3000:3000
 
 volumes:
   app-db-data:

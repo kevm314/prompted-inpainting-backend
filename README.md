@@ -12,10 +12,22 @@ cd app
 - fill in the files with the appropriate values
 - Note that the prod env file has been made to be in json format, this is obviously non-ideal but it is the format required for the prod AWS lambda function to be tested on a local machine before deployment to AWS - [more info here on this limitation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-using-invoke.html#serverless-sam-cli-using-invoke-environment-file)
 
-## Rapid prototyping (dev)
+## Running using docker (dev)
 
-- while in the `app/` directory run the fastAPI server using the `python main.py` command ensuring to have an appropriate environment with the requirements packages installed. This command will 
-automatically use the `dev.env` file. 
+- run `docker build -f backend_dev.dockerfile -t inpainting-backend .` while in the `app/` directory to build the project backend docker image
+- run `docker compose up` to start up the backend service for debugging
+- interact with the backend server by navigating to: http://localhost:8000/docs
+- service urls:
+
+Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost:8000/docs
+
+Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost:8000/redoc
+
+PGAdmin, PostgreSQL web administration: http://localhost:5050
+
+- to attach to the running container for debugging purposes
+    - run `docker compose up -d` to start the container in detached mode
+    - run `docker exec -it prompted-inpainting-backend-backend-1 bash` to start a bash session
 
 ## Production database (via AWS RDS)
 
@@ -24,7 +36,6 @@ automatically use the `dev.env` file.
   - Ensure to have the database VPC security group enabling access from the local PC running the migrations (should turn off once migrations are complete)
   - Ensure to have any aws services (e.g. aws lambda functions) able to access the database in its VPC group
 - When running alembic migrations, it seems easier to have separate env files for dev/prod to switch between the two databases to migrate changes into production
-  - It may be possible that a new commit is needed to apply changes to the production database
 
 ## Database migrations
 
@@ -58,22 +69,6 @@ $ ENV_PATH=./prod_env.json alembic revision --autogenerate -m "Initial set up"
 ```console
 $ ENV_PATH=./dev.env alembic upgrade head
 ```
-
-## Running using docker (dev)
-
-- run `docker build -f backend_dev.dockerfile -t inpainting-backend .` while in the `app/` directory to build the project backend docker image
-- run `docker compose up` to start up the backend service for debugging
-- to attach to the running container for debugging purposes
-    - run `docker compose up -d` to start the container in detached mode
-    - run `docker exec -it prompted-inpainting-backend-backend-1 bash` to start a bash session
-
-- service urls:
-
-Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
-
-Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
-
-PGAdmin, PostgreSQL web administration: http://localhost:5050
 
 ## Production deployment (prod)
 
